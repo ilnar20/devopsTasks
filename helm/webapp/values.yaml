@@ -1,0 +1,9 @@
+replicaCount: 3
+
+image:
+  repository: ilnar20/webapp
+  tag: "latest"
+
+env:
+  name: AUTHOR
+  value: John

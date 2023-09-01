@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+  namespace: test
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 8000
+        # livenessProbe:
+        #   httpGet:
+        #     path: /id
+        #     port: 8000
+        #   failureThreshold: 1
+        #   periodSeconds: 60
+        #   # Override pod-level terminationGracePeriodSeconds #
+        #   terminationGracePeriodSeconds: 60
+        env:
+        - name: UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: "{{ .Values.env.name }}"
+          value: "{{ .Values.env.value }}"
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 1
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
