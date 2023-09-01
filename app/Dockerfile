@@ -13,9 +13,9 @@ ENV AUTHOR=Ilnar
 ENV UUID="b77d110c-79af-4095-9e48-2d1d4f6e680a"
 ENV PYTHONUNBUFFERED=1
 
-# RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
+RUN addgroup -S webapp && adduser -S webapp -G webapp
 
-USER appuser
+USER webapp
 
 CMD [ "python", "./web-app.py"]
 
