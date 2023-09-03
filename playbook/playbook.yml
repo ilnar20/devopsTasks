@@ -19,7 +19,7 @@
         - restart sshd
 
     - name: Copy public key to authorized keys
-      ansible.posix.authorized_key:
+      authorized_key:
         user: cloudru
         state: present
         key: '{{ item }}'
