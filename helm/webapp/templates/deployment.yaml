@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp-deployment
+  name: {{ include "webapp.fullname" . }}
   labels:
     app: webapp
-  namespace: test
+  namespace: {{ include "webapp.fullname" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -16,18 +16,11 @@ spec:
         app: webapp
     spec:
       containers:
-      - name: webapp
+      - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
-        # livenessProbe:
-        #   httpGet:
-        #     path: /id
-        #     port: 8000
-        #   failureThreshold: 1
-        #   periodSeconds: 60
-        #   # Override pod-level terminationGracePeriodSeconds #
-        #   terminationGracePeriodSeconds: 60
         env:
         - name: UUID
           valueFrom:
@@ -36,12 +29,14 @@ spec:
         - name: "{{ .Values.env.name }}"
           value: "{{ .Values.env.value }}"
         readinessProbe:
-          tcpSocket:
+          httpGet:
+            path: /id
             port: 8000
           initialDelaySeconds: 1
           periodSeconds: 10
         livenessProbe:
-          tcpSocket:
+          httpGet:
+            path: /id
             port: 8000
           initialDelaySeconds: 15
-          periodSeconds: 20
+          periodSeconds: 30

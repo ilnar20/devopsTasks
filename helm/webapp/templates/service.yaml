@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp
-  namespace: test
+  name: {{ include "webapp.fullname" . }}
+  namespace: {{ include "webapp.fullname" . }}
 spec:
   selector:
     app: webapp
