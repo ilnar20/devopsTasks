@@ -1,0 +1,38 @@
+- hosts: testmachine
+  become: true
+  vars:
+    permitRootSSHLogin: "no"
+    allowSSHPublickeyAuthentication: "yes"
+
+  tasks:
+    - name: Create cloudru user
+      user:
+        name: cloudru
+        password: $6$CfxlBksmG11BgbAL$OeGcQ9v/aC36vjzPR5TdnSWTGuXkci7wF4M0Y6TOsR7QP7ORjTQamD8SHOMLvJA0.PSZIvCTZkYrdUVljoj7J.
+        shell: /bin/bash
+
+    - name: "Configure sshd"
+      template:
+        src: templates/sshd.conf.j2
+        dest: /etc/ssh/sshd_config.d/sshd.conf
+      notify:
+        - restart sshd
+
+    - name: Copy public key to authorized keys
+      ansible.posix.authorized_key:
+        user: cloudru
+        state: present
+        key: '{{ item }}'
+      with_file:
+        - publickeys/user.pub
+
+    - name: "Ensure ssh service is running"
+      service:
+        name: sshd
+        state: started
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
